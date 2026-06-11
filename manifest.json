@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Temp Follow for X",
+  "version": "1.0.0",
+  "description": "Local temporary-follow tracker for X/Twitter with manual cleanup reminders.",
+  "homepage_url": "https://github.com/carson2222/x-follower",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Temp Follow for X",
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": ["storage", "alarms"],
+  "background": {
+    "service_worker": "src/background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["src/lib/storage.js", "src/content/content.js"],
+      "css": ["src/content/content.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+/* Injected controls on x.com.
+   Goal: feel native beside X's own buttons.
+   - Default: compact icon-only secondary action for dense layouts.
+   - Profile header: circular outlined icon, matching X's own icon buttons.
+   - Controls are wrapped with the native button so they stay aligned instead of
+     dropping underneath in column-based X layouts. */
+
+.xf-control-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  vertical-align: middle;
+  max-width: 100%;
+}
+
+.xf-temp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: rgba(20, 184, 166, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.18);
+  color: #c9fff8;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease,
+    box-shadow 0.15s ease;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.xf-temp-btn:hover {
+  background: rgba(20, 184, 166, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.28);
+}
+
+.xf-temp-btn:active {
+  background: rgba(20, 184, 166, 0.28);
+}
+
+.xf-temp-btn svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
+/* Profile header: match X's circular icon buttons ("...", DM) exactly -
+   transparent fill, 1px gray border, same diameter. Teal lives in the icon. */
+.xf-temp-btn--header {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgb(83, 100, 113);
+  color: #2dd4bf;
+}
+
+.xf-temp-btn--header:hover {
+  background: rgba(20, 184, 166, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.45);
+}
+
+.xf-temp-btn--header svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Already tracked: outlined / quieter state. */
+.xf-temp-btn.xf-tracked {
+  background: transparent;
+  color: #7cecdf;
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.34);
+}
+
+.xf-temp-btn.xf-tracked:hover {
+  background: rgba(20, 184, 166, 0.1);
+}
+
+.xf-temp-btn.xf-flash {
+  background: #14b8a6;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.xf-temp-btn.xf-error {
+  background: #f4212e;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.xf-temp-btn.xf-busy {
+  cursor: default;
+  background: rgba(20, 184, 166, 0.28);
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.18);
+}
+
+.xf-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  animation: xf-spin 0.6s linear infinite;
+}
+
+.xf-temp-glyph {
+  font-size: 13px;
+  line-height: 1;
+}
+
+@keyframes xf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Small inline pending-cleanup marker that sits beside Following.
+   Amber/yellow means "tracked and waiting for cleanup", distinct from the teal
+   action button used to create a temp follow. */
+.xf-marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: rgba(255, 176, 32, 0.14);
+  color: #ffb020;
+  box-shadow: inset 0 0 0 1px rgba(255, 176, 32, 0.22);
+}
+
+.xf-marker svg {
+  width: 11px;
+  height: 11px;
+}

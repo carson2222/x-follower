@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temp Follow for X</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="xf-head">
+      <div class="xf-brand">
+        <span class="xf-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"/>
+            <path fill="currentColor" d="M12.75 7a.75.75 0 0 0-1.5 0v5c0 .27.14.52.37.65l3.5 2a.75.75 0 1 0 .76-1.3l-3.13-1.79V7Z"/>
+          </svg>
+        </span>
+        <div>
+          <div class="xf-title">Temp Follow</div>
+          <div class="xf-subtitle" id="summary">Loading...</div>
+        </div>
+      </div>
+      <button class="xf-icon-btn" id="settingsToggle" title="Settings" aria-label="Settings" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path fill="currentColor" d="M19.14 12.94a7.49 7.49 0 0 0 .05-.94 7.49 7.49 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7 7 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.62-.05.94 0 .32.02.63.05.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.49.38 1.03.7 1.62.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"/>
+        </svg>
+      </button>
+    </header>
+
+    <section class="xf-settings" id="settingsPanel" hidden>
+      <label class="xf-field">
+        <span>Cleanup after (days)</span>
+        <input type="number" id="cleanupDays" min="0" max="365" />
+      </label>
+      <label class="xf-check">
+        <input type="checkbox" id="showMarkers" />
+        <span>Show badge on temp-followed users</span>
+      </label>
+      <label class="xf-check">
+        <input type="checkbox" id="followOnTrack" />
+        <span>Also follow when clicking "Temp"</span>
+      </label>
+    </section>
+
+    <nav class="xf-tabs" id="tabs">
+      <button class="xf-tab xf-tab--active" data-filter="due">Due</button>
+      <button class="xf-tab" data-filter="following">Following</button>
+      <button class="xf-tab" data-filter="unfollowed">Cleaned</button>
+      <button class="xf-tab" data-filter="all">All</button>
+    </nav>
+
+    <main class="xf-list" id="list"></main>
+
+    <footer class="xf-foot">
+      <button class="xf-ghost" id="clearUnfollowed">Clear cleaned</button>
+      <a class="xf-link" id="repoLink" href="https://github.com/carson2222/x-follower" target="_blank" rel="noopener">GitHub</a>
+    </footer>
+
+    <script src="../lib/storage.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Node (only used for the icon generator)
+node_modules/
+npm-debug.log*
+
+# Packaged builds
+*.zip
+dist/

@@ -1,0 +1,408 @@
+/* Popup styling - built on X's "Lights out" color tokens with a teal accent,
+   a clear type scale, and X-style underline tabs so it feels native. */
+
+:root {
+  --bg: #000000;
+  --surface: #16181c;
+  --surface-2: #1d1f23;
+  --border: #2f3336;
+  --text: #e7e9ea;
+  --text-dim: #71767b;
+  --teal: #14b8a6;
+  --teal-bright: #2dd4bf;
+  --teal-hover: #0f9b8e;
+  --danger: #f4212e;
+  --amber: #ffb020;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  width: 384px;
+  max-height: 580px;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto,
+    Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- header ------------------------------------------------------------- */
+.xf-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.xf-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.xf-logo {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--teal);
+  color: #fff;
+}
+
+.xf-logo svg {
+  width: 21px;
+  height: 21px;
+}
+
+.xf-title {
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.xf-subtitle {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-top: 1px;
+}
+
+.xf-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 7px;
+  border-radius: 9999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.xf-icon-btn:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ---- settings ----------------------------------------------------------- */
+.xf-settings {
+  margin: 0 16px 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.xf-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-weight: 500;
+}
+
+.xf-field input {
+  width: 64px;
+  padding: 7px 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--text);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.xf-field input:focus,
+.xf-settings input:focus-visible {
+  outline: none;
+  border-color: var(--teal);
+}
+
+.xf-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.xf-check input {
+  accent-color: var(--teal);
+  width: 17px;
+  height: 17px;
+}
+
+/* ---- tabs (X-style underline) ------------------------------------------ */
+.xf-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 8px;
+}
+
+.xf-tab {
+  position: relative;
+  flex: 1;
+  padding: 13px 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.xf-tab:hover {
+  color: var(--text);
+}
+
+.xf-tab--active {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.xf-tab--active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  transform: translateX(-50%);
+  width: 56px;
+  max-width: 80%;
+  height: 3px;
+  border-radius: 9999px;
+  background: var(--teal);
+}
+
+/* ---- list --------------------------------------------------------------- */
+.xf-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0 8px;
+}
+
+.xf-group-head {
+  padding: 14px 16px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+}
+
+.xf-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 16px;
+  transition: background-color 0.12s ease;
+}
+
+.xf-row:hover {
+  background: var(--surface);
+}
+
+.xf-row-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.xf-handle {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  max-width: 100%;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.xf-handle:hover {
+  text-decoration: underline;
+}
+
+.xf-name {
+  color: var(--text-dim);
+  font-weight: 400;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xf-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xf-meta > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xf-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  letter-spacing: 0.01em;
+}
+
+.xf-chip--due {
+  background: rgba(255, 176, 32, 0.15);
+  color: var(--amber);
+}
+
+.xf-chip--following {
+  background: rgba(20, 184, 166, 0.15);
+  color: var(--teal-bright);
+}
+
+.xf-chip--cleaned {
+  background: var(--surface-2);
+  color: var(--text-dim);
+}
+
+/* ---- actions ------------------------------------------------------------ */
+.xf-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.xf-act {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.xf-act:hover {
+  background: var(--surface-2);
+}
+
+.xf-act--primary {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+}
+
+.xf-act--primary:hover {
+  background: var(--teal-hover);
+  border-color: var(--teal-hover);
+}
+
+.xf-act--icon {
+  padding: 6px 9px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.xf-act--danger:hover {
+  background: rgba(244, 33, 46, 0.12);
+  border-color: rgba(244, 33, 46, 0.5);
+  color: var(--danger);
+}
+
+/* ---- empty state -------------------------------------------------------- */
+.xf-empty {
+  padding: 48px 32px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.xf-empty svg {
+  width: 40px;
+  height: 40px;
+  color: var(--border);
+  margin-bottom: 14px;
+}
+
+/* ---- footer ------------------------------------------------------------- */
+.xf-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.xf-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 9999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.xf-ghost:hover {
+  background: var(--surface);
+}
+
+.xf-link {
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.xf-link:hover {
+  color: var(--teal-bright);
+}
+
+/* scrollbar */
+.xf-list::-webkit-scrollbar {
+  width: 8px;
+}
+.xf-list::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+}
