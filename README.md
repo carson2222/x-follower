@@ -15,6 +15,7 @@ automation, and does not send data to any server.
 - Adds a compact temp-follow control next to native Follow buttons.
 - Records follows only after X confirms the account is followed.
 - Shows an amber pending marker for accounts still waiting for cleanup.
+- Highlights due accounts in red directly on X lists/cards.
 - Hides the temp-follow control for accounts that already follow you, unless
   they were previously temp-followed and still need cleanup.
 - Tracks native unfollow confirmation and marks records as cleaned only after
@@ -47,6 +48,7 @@ The default cleanup window is 3 days. Change it from the gear icon in the popup.
 
 - Teal clock button: available temp-follow action.
 - Amber small marker: account is tracked and pending cleanup.
+- Red marker/row: account is due for cleanup.
 - Red flash: follow failed, usually because X rejected or rate-limited it.
 - Spinner: waiting for X's UI state to settle.
 

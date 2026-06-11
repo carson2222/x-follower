@@ -23,12 +23,13 @@
 
   // ---- selectors (verified against X's current DOM) -----------------------
   const SEL = {
-    follow: '[data-testid$="-follow"]',
-    unfollow: '[data-testid$="-unfollow"]',
+    follow: '[data-testid$="-follow"], [data-testid="follow"]',
+    unfollow: '[data-testid$="-unfollow"], [data-testid="unfollow"]',
     confirm: '[data-testid="confirmationSheetConfirm"]',
     userCell: '[data-testid="UserCell"]',
     userName: '[data-testid="UserName"]',
     toast: '[data-testid="toast"]',
+    hoverCard: '[role="dialog"], [data-testid="HoverCard"]',
   };
 
   // Toast copy that means the follow did NOT go through (rate limits, errors).
@@ -48,6 +49,7 @@
   // In-memory cache of handles currently in "following" status. Kept in sync
   // with storage so marker rendering is synchronous and cheap.
   let trackedFollowing = new Set();
+  let trackedEntries = new Map();
 
   // Captured when a native unfollow button is clicked, committed when the
   // confirmation dialog's confirm button is clicked.
@@ -69,12 +71,18 @@
     return m ? m[1] : null;
   }
 
-  function handleFromContainer(btn) {
-    const container =
+  function userContainerForButton(btn) {
+    return (
       btn.closest(SEL.userCell) ||
       btn.closest("article") ||
+      btn.closest(SEL.hoverCard) ||
       btn.closest('[data-testid="UserName"]')?.parentElement ||
-      btn.parentElement;
+      btn.parentElement
+    );
+  }
+
+  function handleFromContainer(btn) {
+    const container = userContainerForButton(btn);
     if (!container) return null;
 
     // Prefer a link whose visible text looks like "@handle".
@@ -102,7 +110,7 @@
   }
 
   function displayNameFromContainer(btn) {
-    const container = btn.closest(SEL.userCell) || btn.closest("article");
+    const container = userContainerForButton(btn);
     if (!container) {
       // Profile header case.
       const un = document.querySelector(SEL.userName);
@@ -141,7 +149,7 @@
   function isProfileHeaderButton(btn) {
     // Heuristic: a follow button that lives high in the page (the profile
     // header) rather than inside a list cell or tweet.
-    return !btn.closest(SEL.userCell) && !btn.closest("article");
+    return !btn.closest(SEL.userCell) && !btn.closest("article") && !btn.closest(SEL.hoverCard);
   }
 
   function userFollowsViewer(btn) {
@@ -149,10 +157,7 @@
     const text = (btn.textContent || "").trim();
     if (/follow back/i.test(label) || /follow back/i.test(text)) return true;
 
-    const container =
-      btn.closest(SEL.userCell) ||
-      btn.closest("article") ||
-      (isProfileHeaderButton(btn) ? document.querySelector("main") : null);
+    const container = userContainerForButton(btn);
     if (!container) return false;
 
     if (container.querySelector('[data-testid="userFollowIndicator"]')) return true;
@@ -182,12 +187,34 @@
     return el;
   }
 
-  function buildMarker(handle) {
+  function setDueHighlight(btn, isDue) {
+    const surface = btn.closest(SEL.userCell) || btn.closest("article") || btn.closest(SEL.hoverCard);
+    if (!surface) return;
+    surface.classList.toggle("xf-due-row", !!isDue);
+  }
+
+  function trackedEntryFor(handle) {
+    return trackedEntries.get(Store.normalizeHandle(handle)) || null;
+  }
+
+  function markerIsDue(entry) {
+    return Store.isDue(entry, cachedSettings);
+  }
+
+  function applyMarkerState(marker, handle, entry) {
+    const due = markerIsDue(entry);
+    marker.classList.toggle("xf-marker--due", due);
+    marker.title = due
+      ? "@" + handle + " is due for cleanup"
+      : "You temp-followed @" + handle + " - pending cleanup";
+  }
+
+  function buildMarker(handle, entry) {
     const el = document.createElement("span");
     el.className = "xf-marker";
     el.setAttribute("data-xf", "marker");
-    el.title = "You temp-followed @" + handle + " - pending cleanup";
     el.innerHTML = CLOCK_SVG;
+    applyMarkerState(el, handle, entry);
     return el;
   }
 
@@ -205,10 +232,17 @@
       if (document.querySelector('[data-testid="' + userId + '-follow"]'))
         return "not-following";
     }
+
+    const scope = btn ? userContainerForButton(btn) : null;
+    if (scope) {
+      if (scope.querySelector(SEL.unfollow)) return "following";
+      if (scope.querySelector(SEL.follow)) return "not-following";
+    }
+
     // Fall back to the (possibly detached) button element's last known testid.
     const tid = btn ? btn.getAttribute("data-testid") || "" : "";
-    if (tid.endsWith("-unfollow")) return "following";
-    if (tid.endsWith("-follow")) return "not-following";
+    if (tid === "unfollow" || tid.endsWith("-unfollow")) return "following";
+    if (tid === "follow" || tid.endsWith("-follow")) return "not-following";
     return null;
   }
 
@@ -256,8 +290,9 @@
     // If auto-follow is off, the user is just bookmarking someone they already
     // follow - nothing can fail, so record directly.
     if (!settings.followOnTrack) {
-      await Store.track(info);
+      const entry = await Store.track(info);
       trackedFollowing.add(info.handle.toLowerCase());
+      trackedEntries.set(Store.normalizeHandle(info.handle), entry);
       tempBtn.classList.add("xf-tracked");
       flash(tempBtn, "✓", "Saved");
       return;
@@ -274,8 +309,9 @@
       return;
     }
 
-    await Store.track(info);
+    const entry = await Store.track(info);
     trackedFollowing.add(info.handle.toLowerCase());
+    trackedEntries.set(Store.normalizeHandle(info.handle), entry);
     tempBtn.classList.add("xf-tracked");
     flash(tempBtn, "✓", "Tracked");
   }
@@ -333,12 +369,11 @@
   // -------------------------------------------------------------------------
 
   function injectIntoFollowButton(btn) {
-    if (btn.dataset.xfSkip === "1") return;
-
     const info = extractUser(btn);
     if (!info.handle) {
-      // Can't identify the user - don't pollute the UI with a useless button.
-      btn.dataset.xfSkip = "1";
+      // X often renders the button before the surrounding user text/link is
+      // available. Do not mark it skipped permanently; a later scan can resolve
+      // the handle once the card finishes hydrating.
       return;
     }
     const wrap = ensureControlWrap(btn);
@@ -346,7 +381,10 @@
 
     let marker = wrapChild(wrap, ".xf-marker");
     let tempBtn = wrapChild(wrap, ".xf-temp-btn");
-    const tracked = trackedFollowing.has(info.handle.toLowerCase());
+    const entry = trackedEntryFor(info.handle);
+    const tracked = !!entry;
+    const due = tracked && markerIsDue(entry);
+    setDueHighlight(btn, due);
 
     // If they already follow you, don't show a temp-follow action. Only keep the
     // amber marker if you had temp-followed them earlier and they're still
@@ -354,7 +392,11 @@
     if (userFollowsViewer(btn)) {
       if (tempBtn) tempBtn.remove();
       if (tracked && cachedSettings.showMarkers) {
-        if (!marker) wrap.appendChild(buildMarker(info.handle));
+        if (!marker) {
+          wrap.appendChild(buildMarker(info.handle, entry));
+        } else {
+          applyMarkerState(marker, info.handle, entry);
+        }
       } else if (marker) {
         marker.remove();
       }
@@ -373,7 +415,9 @@
 
   function updateUnfollowMarker(btn, showMarkers) {
     const info = extractUser(btn);
-    const isTracked = info.handle && trackedFollowing.has(info.handle.toLowerCase());
+    const entry = info.handle ? trackedEntryFor(info.handle) : null;
+    const isTracked = !!entry;
+    setDueHighlight(btn, isTracked && markerIsDue(entry));
     const wrap = ensureControlWrap(btn);
     if (!wrap) return;
 
@@ -383,7 +427,11 @@
     const marker = wrapChild(wrap, ".xf-marker");
 
     if (isTracked && showMarkers) {
-      if (!marker) wrap.appendChild(buildMarker(info.handle));
+      if (!marker) {
+        wrap.appendChild(buildMarker(info.handle, entry));
+      } else {
+        applyMarkerState(marker, info.handle, entry);
+      }
     } else if (marker) {
       marker.remove();
     }
@@ -404,6 +452,22 @@
     if (scanQueued) return;
     scanQueued = true;
     requestAnimationFrame(scan);
+  }
+
+  function installNavigationWatcher() {
+    const notify = () => setTimeout(queueScan, 250);
+    const wrap = (method) => {
+      const original = history[method];
+      history[method] = function () {
+        const result = original.apply(this, arguments);
+        notify();
+        return result;
+      };
+    };
+
+    wrap("pushState");
+    wrap("replaceState");
+    window.addEventListener("popstate", notify);
   }
 
   // -------------------------------------------------------------------------
@@ -451,7 +515,10 @@
       if (followFailureToast()) return; // unfollow rejected
       if (followState(userId, null) === "not-following") {
         const changed = await Store.markUnfollowed(handle);
-        if (changed) trackedFollowing.delete(handle);
+        if (changed) {
+          trackedFollowing.delete(handle);
+          trackedEntries.delete(handle);
+        }
         return;
       }
     }
@@ -468,10 +535,15 @@
       Store.getSettings(),
     ]);
     cachedSettings = settings;
+    trackedEntries = new Map();
     trackedFollowing = new Set(
       Object.values(follows)
         .filter((f) => f.status === "following")
-        .map((f) => f.handle.toLowerCase())
+        .map((f) => {
+          const key = Store.normalizeHandle(f.handle);
+          trackedEntries.set(key, f);
+          return key;
+        })
     );
   }
 
@@ -481,6 +553,11 @@
 
     const observer = new MutationObserver(queueScan);
     observer.observe(document.documentElement, { childList: true, subtree: true });
+    installNavigationWatcher();
+
+    // Safety net for X virtualized lists: occasionally rescan visible DOM so a
+    // missed mutation or late-hydrated user card recovers without a page reload.
+    setInterval(queueScan, 2500);
 
     // Keep the in-memory cache fresh when storage changes (e.g. from the popup
     // or another tab) and re-render markers/buttons accordingly.
@@ -489,7 +566,7 @@
       // Re-evaluate tracked state on existing temp buttons.
       document.querySelectorAll('.xf-temp-btn').forEach((tb) => {
         const native = tb.parentElement?.querySelector(
-          '[data-testid$="-follow"], [data-testid$="-unfollow"]'
+          '[data-testid$="-follow"], [data-testid="follow"], [data-testid$="-unfollow"], [data-testid="unfollow"]'
         );
         if (!native) return;
         const info = extractUser(native);
