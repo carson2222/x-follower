@@ -49,6 +49,17 @@
       <button class="xf-tab" data-filter="all">All</button>
     </nav>
 
+    <div class="xf-batch" id="batchControls">
+      <button class="xf-batch-open" id="openDue">Open oldest 10</button>
+      <label class="xf-batch-size">
+        <span class="xf-sr-only">Profiles to open</span>
+        <select id="batchSize" aria-label="Profiles to open">
+          <option value="10">10</option>
+          <option value="25">25</option>
+        </select>
+      </label>
+    </div>
+
     <main class="xf-list" id="list"></main>
 
     <footer class="xf-foot">

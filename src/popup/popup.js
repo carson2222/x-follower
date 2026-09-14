@@ -17,6 +17,9 @@
     summary: document.getElementById("summary"),
     list: document.getElementById("list"),
     tabs: document.getElementById("tabs"),
+    batchControls: document.getElementById("batchControls"),
+    openDue: document.getElementById("openDue"),
+    batchSize: document.getElementById("batchSize"),
     settingsToggle: document.getElementById("settingsToggle"),
     settingsPanel: document.getElementById("settingsPanel"),
     cleanupDays: document.getElementById("cleanupDays"),
@@ -105,6 +108,11 @@
     const due = following.filter((e) => Store.isDue(e, state.settings));
     els.summary.textContent =
       following.length + " following · " + due.length + " due to clean";
+
+    const batchSize = Number(els.batchSize.value);
+    els.batchControls.hidden = state.filter !== "due";
+    els.openDue.disabled = due.length === 0;
+    els.openDue.textContent = "Open oldest " + Math.min(due.length, batchSize);
 
     const entries = entriesForFilter();
     els.list.innerHTML = "";
@@ -247,6 +255,17 @@
         t.classList.toggle("xf-tab--active", t === tab)
       );
       render();
+    });
+
+    els.batchSize.addEventListener("change", render);
+
+    els.openDue.addEventListener("click", () => {
+      const batchSize = Number(els.batchSize.value);
+      const due = Object.values(state.follows)
+        .filter((entry) => Store.isDue(entry, state.settings))
+        .sort((a, b) => a.followedAt - b.followedAt)
+        .slice(0, batchSize);
+      for (const entry of due) chrome.tabs.create({ url: profileUrl(entry.handle) });
     });
 
     els.settingsToggle.addEventListener("click", () => {
